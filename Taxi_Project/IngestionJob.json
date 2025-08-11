@@ -1,0 +1,58 @@
+{
+  "name": "New Job Aug 08, 2025, 11:11 AM",
+  "email_notifications": {
+    "no_alert_for_skipped_runs": false
+  },
+  "webhook_notifications": {},
+  "timeout_seconds": 0,
+  "max_concurrent_runs": 1,
+  "tasks": [
+    {
+      "task_key": "IngestBronzeParameters",
+      "run_if": "ALL_SUCCESS",
+      "notebook_task": {
+        "notebook_path": "/Repos/floreanalexandrei@gmail.com/Data_Engineering/Taxi_Project/BronzeParameters",
+        "source": "WORKSPACE"
+      },
+      "timeout_seconds": 0,
+      "email_notifications": {},
+      "webhook_notifications": {}
+    },
+    {
+      "task_key": "BronzeDataIngestion",
+      "depends_on": [
+        {
+          "task_key": "IngestBronzeParameters"
+        }
+      ],
+      "run_if": "ALL_SUCCESS",
+      "for_each_task": {
+        "inputs": "{{tasks.IngestBronzeParameters.values.types_key}}",
+        "task": {
+          "task_key": "BronzeDataIngestion_iteration",
+          "run_if": "ALL_SUCCESS",
+          "notebook_task": {
+            "notebook_path": "/Repos/floreanalexandrei@gmail.com/Data_Engineering/Taxi_Project/BronzeLayer",
+            "base_parameters": {
+              "type": "{{input.type}}"
+            },
+            "source": "WORKSPACE"
+          },
+          "timeout_seconds": 0,
+          "email_notifications": {},
+          "webhook_notifications": {}
+        }
+      },
+      "timeout_seconds": 0,
+      "email_notifications": {},
+      "webhook_notifications": {}
+    }
+  ],
+  "queue": {
+    "enabled": true
+  },
+  "performance_target": "STANDARD",
+  "run_as": {
+    "user_name": "floreanalexandrei@gmail.com"
+  }
+}
